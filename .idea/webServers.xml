@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="4ad86cae-4591-403e-8b19-b350d85603a8" name="zhenli@icst.eecser.com">
+        <fileTransfer rootFolder="/home/zhenli/ChID_retrieval" accessType="SFTP" host="icst.eecser.com" port="2563" sshConfigId="4878d3c2-3caf-4b91-b3b4-055865f0ad30" sshConfig="zhenli@icst.eecser.com:2559">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
