@@ -72,7 +72,14 @@ class Batcher(object):
             labels.append(label)
             mask_l = location(content, self.mask_id)
             mask_cur = mask_l[mask_tag]
-            if mask_cur <= self.config.content_max_length:
+            if len(content) <= self.config.content_max_length:
+                item_content_norm = [self.cls_id] + content + [self.sep_id]
+                item_content_input_ids_norm = self.pad(item_content_norm, max_len=self.config.content_max_length + 2,
+                                                     pad_id=self.pad_id, direction='right')
+                contents.append(item_content_input_ids_norm)
+                mask_locations.append(mask_cur)
+                continue
+            if mask_cur <= len(content) // 2:
                 item_content = self.truncate(content, max_len=self.config.content_max_length, direction='right')
                 item_content_norm = [self.cls_id] + item_content + [self.sep_id]
                 item_content_input_ids_norm = self.pad(item_content_norm, max_len=self.config.content_max_length + 2,
@@ -91,7 +98,6 @@ class Batcher(object):
                 item_mask_location_l = location(item_content_input_ids_norm, self.mask_id)
                 item_mask_location = item_mask_location_l[-1]
                 mask_locations.append(item_mask_location)
-
             #if mask_tag == 0:
             #    temp = content.index(self.mask_id)
             #    if temp <= self.config.content_max_length:
