@@ -148,19 +148,19 @@ def train(retriever,
             retr_acc_sum = 0.
 
 
-        if step_idx > 0 and (step_idx + 1) % eval_every == 0:
-            with torch.no_grad():
-                best_score = evaluate(data_loader=eval_loader,
-                                      retriever=retriever,
-                                      batcher=batcher,
-                                      epoch=epoch,
-                                      step_idx=step_idx,
-                                      config=config,
-                                      logger=logger,
-                                      device=device,
-                                      best_score=best_score,
-                                      retr_optimizer=retr_optimizer)
-            # new_best_scores.append(best_score)
+        #if step_idx > 0 and (step_idx + 1) % eval_every == 0:
+        #    with torch.no_grad():
+        #        best_score = evaluate(data_loader=eval_loader,
+        #                              retriever=retriever,
+        #                              batcher=batcher,
+        #                              epoch=epoch,
+        #                              step_idx=step_idx,
+        #                              config=config,
+        #                              logger=logger,
+        #                              device=device,
+        #                              best_score=best_score,
+        #                              retr_optimizer=retr_optimizer)
+        #    # new_best_scores.append(best_score)
     with torch.no_grad():
         best_score = evaluate(data_loader=eval_loader,
                               retriever=retriever,
@@ -187,7 +187,7 @@ def evaluate(data_loader,
     logger.info(f'Begin evaluating at epoch {epoch} and step {step_idx}:')
     retr_acc_sum = 0.
     retr_num = 0
-    for step_idx, raw_batch in enumerate(tqdm(data_loader, desc=f'Train: {epoch}')):
+    for step_idx, raw_batch in enumerate(tqdm(data_loader, desc=f'Eval: {epoch}')):
         retriever.eval()
         labels, mask_locations, contents, candidate_idioms = raw_batch
 

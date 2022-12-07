@@ -8,7 +8,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py \
   --num_workers 16 \
   --batch_size 8 \
   --eval_batch_size 4 \
-  --lr_retr 3e-5 \
+  --lr_retr 5e-5 \
   --lr_retr_min 5e-7 \
   --max_epochs 8 \
   --logdir ChID_1w

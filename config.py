@@ -9,8 +9,7 @@ class Config:
     parser.add_argument('--print_every', default=100, type=int)
     parser.add_argument('--eval_times_per_epoch', default=-1, type=int)
     parser.add_argument('--summary', default='summary', type=str)
-    parser.add_argument('--mode', default='train', type=str, choices=['train', 'pretrain_retr', 'pretrain_rank',
-                                                                      'score', 'posttrain_rank'])
+    parser.add_argument('--mode', default='train', type=str, choices=['train', 'pretrain_retr'])
     parser.add_argument('--seed', default=1012, type=int)
     parser.add_argument('--num_workers', default=-1, type=int)
     parser.add_argument('--debug', default=False, action='store_true')
@@ -18,7 +17,6 @@ class Config:
     parser.add_argument('--save_regular_ckpt', default=False, action='store_true')
     parser.add_argument('--eval_unseen', default=False, action='store_true')
     parser.add_argument('--eval_first', default=False, action='store_true')
-    parser.add_argument('--data_flag', default='wow', type=str, choices=['wow', 'cmu'])
 
     parser.add_argument('--local_rank', default=-1, type=int)
     parser.add_argument('--world_size', default=-1, type=int)
