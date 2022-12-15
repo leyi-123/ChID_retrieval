@@ -15,7 +15,7 @@ from config import Config
 from utils import Batcher, setup_seed, adapter_from_parallel
 from log import Logger, highlight
 from data import ChIDDataset
-from model import Retriever
+from model import Cross_Retriever
 from transformers import BertTokenizer
 
 time_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -41,7 +41,7 @@ def main():
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     batcher = Batcher(config=config, device=device)
-    retriever = Retriever(config=config, tokenizer=BertTokenizer.from_pretrained(config.model_type)).to(device)
+    retriever =Cross_Retriever(config=config, tokenizer=BertTokenizer.from_pretrained(config.model_type)).to(device)
 
     train_data = ChIDDataset(config.train_path, config=config)
 
@@ -49,11 +49,11 @@ def main():
     valid_data = ChIDDataset(config.valid_path, config=config)
 
     train_loader = DataLoader(train_data, config.batch_size, shuffle=True,
-                              num_workers=config.num_workers, collate_fn=batcher.get_batch)
+                              num_workers=config.num_workers, collate_fn=batcher.get_batch_cross)
     test_loader = DataLoader(test_data, config.eval_batch_size, shuffle=False,
-                                  num_workers=config.num_workers, collate_fn=batcher.get_batch)
+                                  num_workers=config.num_workers, collate_fn=batcher.get_batch_cross)
     valid_loader = DataLoader(valid_data, config.eval_batch_size, shuffle=False,
-                                   num_workers=config.num_workers, collate_fn=batcher.get_batch)
+                                   num_workers=config.num_workers, collate_fn=batcher.get_batch_cross)
     eps = 1e-8
     retr_optimizer = optim.AdamW(params=retriever.parameters(), lr=config.lr_retr, eps=eps)
     retr_scheduler = get_linear_schedule_with_warmup(retr_optimizer, num_warmup_steps=config.warmup_steps_retr,
@@ -106,14 +106,13 @@ def train(retriever,
 
     for step_idx, raw_batch in enumerate(tqdm(train_loader, desc=f'Train: {epoch}')):
         retriever.train()
-        labels, mask_locations, contents, candidate_idioms = raw_batch
+        labels, mask_locations, idiom_contents = raw_batch
 
         labels = torch.tensor(labels, dtype=torch.long, device=device) # [b]
         mask_locations = torch.tensor(mask_locations, dtype=torch.long, device=device) # [b]
-        contents = torch.tensor(contents, dtype=torch.long, device=device) # [b, content_len]
-        candidate_idioms = torch.tensor(candidate_idioms, dtype=torch.long, device=device) # [b, 7, idiom_len]
+        idiom_contents = torch.tensor(idiom_contents, dtype=torch.long, device=device) # [b, 7, content_len]
 
-        idiom_logits = retriever(contents=contents, candidate_idioms=candidate_idioms, mask_locations=mask_locations)
+        idiom_logits = retriever(idiom_contents=idiom_contents, mask_locations=mask_locations) # [b, 7]
 
         retr_acc = torch.mean((torch.argmax(idiom_logits, dim=-1) == labels).float())
         retr_acc_sum += retr_acc.item()
@@ -191,14 +190,13 @@ def evaluate(data_loader,
     retr_num = 0
     for step_idx, raw_batch in enumerate(tqdm(data_loader, desc=f'Eval: {epoch}')):
         retriever.eval()
-        labels, mask_locations, contents, candidate_idioms = raw_batch
+        labels, mask_locations, idiom_contents = raw_batch
 
-        labels = torch.tensor(labels, dtype=torch.long, device=device) # [b]
-        mask_locations = torch.tensor(mask_locations, dtype=torch.long, device=device) # [b]
-        contents = torch.tensor(contents, dtype=torch.long, device=device) # [b, content_len]
-        candidate_idioms = torch.tensor(candidate_idioms, dtype=torch.long, device=device) # [b, 7, idiom_len]
+        labels = torch.tensor(labels, dtype=torch.long, device=device)  # [b]
+        mask_locations = torch.tensor(mask_locations, dtype=torch.long, device=device)  # [b]
+        idiom_contents = torch.tensor(idiom_contents, dtype=torch.long, device=device)  # [b, 7, content_len]
 
-        idiom_logits = retriever(contents=contents, candidate_idioms=candidate_idioms, mask_locations=mask_locations)
+        idiom_logits = retriever(idiom_contents=idiom_contents, mask_locations=mask_locations)  # [b, 7]
 
         retr_acc = torch.mean((torch.argmax(idiom_logits, dim=-1) == labels).float())
         retr_acc_sum += retr_acc.item()

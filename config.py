@@ -31,7 +31,7 @@ class Config:
     parser.add_argument('--score_test_path', default='', type=str)
 
 
-    parser.add_argument('--model_type', default='hfl/chinese-bert-wwm-ext')
+    parser.add_argument('--model_type', default='hfl/chinese-roberta-wwm-ext')
     parser.add_argument('--retr_ckpt_path', default='', type=str)
 
     # model args
@@ -56,3 +56,8 @@ class Config:
     parser.add_argument('--warmup_steps_retr', default=1000, type=int)
     parser.add_argument('--max_epochs', default=20, type=int)
     parser.add_argument('--grad_clip', default=2e2, type=float)
+
+    parser.add_argument('--use_mask', default=False, action='store_true')
+    parser.add_argument('--stride', default=False, action='store_true')
+    parser.add_argument('--stride_length', default=250, type=int)
+    parser.add_argument('--cross', default=False, action='store_true')
