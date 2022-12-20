@@ -137,6 +137,44 @@ class Cross_Retriever(nn.Module):
         logits = self.classifier(idiom_contents_rep).squeeze(-1).view(bsz, can_num)
 
         return logits
+class Cross_Retriever_mask(nn.Module):
+    def __init__(self, config, tokenizer):
+        super(Cross_Retriever_mask, self).__init__()
+        self.config = config
+
+        bert_config = BertConfig.from_pretrained(config.model_type)
+        self.encoder = BertModel.from_pretrained(config.model_type, return_dict=True)
+
+        self.hidden_size = bert_config.hidden_size
+        self.hidden_dropout_prob = bert_config.hidden_dropout_prob
+        self.num_hidden_layers = bert_config.num_hidden_layers
+        self.pad_id = bert_config.pad_token_id
+
+        self.dropout = nn.Dropout(self.hidden_dropout_prob)
+        self.classifier = nn.Linear(self.hidden_size, 1)
+
+    def forward(self, idiom_contents):
+        """
+
+        :param idiom_contents: [bsz, 7, idiom_content_len]
+        :return:
+            dot_product: [bsz, 7]
+        """
+        bsz, can_num, idiom_content_len = idiom_contents.shape
+
+        idiom_contents_input_ids_flatten = idiom_contents.view(-1,
+                                                               idiom_content_len)  # [bsz * can_num(7), idiom_content_len]
+        idiom_contents_attention_mask_flatten = get_mask(idiom_contents_input_ids_flatten, self.pad_id)
+
+        idiom_contents_rep_flatten = self.encoder(input_ids=idiom_contents_input_ids_flatten,
+                                                  attention_mask=idiom_contents_attention_mask_flatten).pooler_output  # [bsz * can_num(7), dim]
+        idiom_contenes_rep_c = idiom_contents_rep_flatten.view(bsz, can_num, -1)
+        idiom_contents_rep = self.dropout(idiom_contenes_rep_c)  #
+
+        idiom_contents_rep = idiom_contents_rep.view(bsz*can_num, -1)
+        logits = self.classifier(idiom_contents_rep).squeeze(-1).view(bsz, can_num)
+
+        return logits
 
 def get_mask(input_ids: torch.LongTensor, pad_id: int):
     return (~input_ids.eq(pad_id)).float()

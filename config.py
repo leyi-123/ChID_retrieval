@@ -10,7 +10,7 @@ class Config:
     parser.add_argument('--eval_times_per_epoch', default=-1, type=int)
     parser.add_argument('--summary', default='summary', type=str)
     parser.add_argument('--mode', default='train', type=str, choices=['train', 'pretrain_retr'])
-    parser.add_argument('--seed', default=1012, type=int)
+    parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--num_workers', default=-1, type=int)
     parser.add_argument('--debug', default=False, action='store_true')
     parser.add_argument('--debug_num', default=1000, type=int)
@@ -55,9 +55,13 @@ class Config:
     parser.add_argument('--lr_retr_min', default=0, type=float)
     parser.add_argument('--warmup_steps_retr', default=1000, type=int)
     parser.add_argument('--max_epochs', default=20, type=int)
-    parser.add_argument('--grad_clip', default=2e2, type=float)
+    parser.add_argument('--grad_clip', default=3e2, type=float)
 
     parser.add_argument('--use_mask', default=False, action='store_true')
     parser.add_argument('--stride', default=False, action='store_true')
     parser.add_argument('--stride_length', default=250, type=int)
     parser.add_argument('--cross', default=False, action='store_true')
+    parser.add_argument('--idiom_content_max_length', default=420, type=int)
+
+    parser.add_argument('--retr_ckpt', default='', type=str)
+    parser.add_argument('--zero_shot', default=False, action='store_true')
